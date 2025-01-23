@@ -27,23 +27,22 @@ async def parse_tollabda():
 
     options = [
         "--window-size=1200,1200",
-        "--ignore-certificate-errors"
-
-        # More possible options:
-        #"--headless",
-        #"--disable-gpu",
-        #"--window-size=1920,1200",
-        #"--ignore-certificate-errors",
-        #"--disable-extensions",
-        #"--no-sandbox",
-        #"--disable-dev-shm-usage",
-        #'--remote-debugging-port=9222'
+        "--ignore-certificate-errors",
+        "--headless",  # Run in headless mode for CI
+        "--no-sandbox",  # Required for running in Docker/CI
+        "--disable-dev-shm-usage",  # Overcome limited resource problems
+        "--disable-gpu",  # Disable GPU hardware acceleration
+        f"--user-data-dir=/tmp/chrome-data-{time.time()}"  # Use unique data directory
     ]
 
     for option in options:
         chrome_options.add_argument(option)
 
-    driver = webdriver.Chrome(options = chrome_options)
+    # Add these additional preferences
+    chrome_options.add_experimental_option('excludeSwitches', ['enable-logging'])
+    chrome_options.add_experimental_option('excludeSwitches', ['enable-automation'])
+
+    driver = webdriver.Chrome(options=chrome_options)
     driver.get("https://tollabda.hu/Calendar")
     _, button_forward = driver.find_elements(By.CLASS_NAME, 'monthNavigate')
     button_forward.click()
